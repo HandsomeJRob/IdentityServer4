@@ -10,13 +10,14 @@ namespace ConsoleClientApp
     {
         static void Main(string[] args)
         {
-            DoStuff().Wait();
+            //LoginWithClientSecret().Wait();
 
+            LoginWithResourceOwnerFlow().Wait();
 
             Console.ReadLine();
         }
 
-        public static async Task DoStuff()
+        public static async Task LoginWithClientSecret()
         {
             // discover endpoints from metadata
             var client = new HttpClient();
@@ -61,6 +62,39 @@ namespace ConsoleClientApp
                 var content = await response.Content.ReadAsStringAsync();
                 Console.WriteLine(JArray.Parse(content));
             }
+        }
+
+        public static async Task LoginWithResourceOwnerFlow()
+        {
+            // discover endpoints from metadata
+            var client = new HttpClient();
+            var disco = await client.GetDiscoveryDocumentAsync("http://localhost:5000");
+            if (disco.IsError)
+            {
+                Console.WriteLine(disco.Error);
+                return;
+            }
+
+
+            // request token
+            var tokenResponse = await client.RequestPasswordTokenAsync(new PasswordTokenRequest
+            {
+                Address = disco.TokenEndpoint,
+                ClientId = "ro.client",
+                ClientSecret = "secret",
+
+                UserName = "alice",
+                Password = "password",
+                Scope = "api1"
+            });
+
+            if (tokenResponse.IsError)
+            {
+                Console.WriteLine(tokenResponse.Error);
+                return;
+            }
+
+            Console.WriteLine(tokenResponse.Json);
         }
     }
 }

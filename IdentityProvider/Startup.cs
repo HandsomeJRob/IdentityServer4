@@ -13,12 +13,17 @@ namespace IdentityProvider
     {
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddMvc();
+
+
             // configure identity server with in-memory stores, keys, clients and resources
             services.AddIdentityServer()
                 .AddDeveloperSigningCredential()
                 .AddInMemoryIdentityResources(Config.GetIdentityResources())
                 .AddInMemoryApiResources(Config.GetApiResources())
-                .AddInMemoryClients(Config.GetClients());
+                .AddInMemoryClients(Config.GetClients())
+                .AddTestUsers(Config.GetUsers());
+
         }
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
@@ -27,7 +32,16 @@ namespace IdentityProvider
                 app.UseDeveloperExceptionPage();
             }
 
+            app.UseStaticFiles();
+
             app.UseIdentityServer();
+
+            app.UseMvc(routes =>
+            {
+                routes.MapRoute(
+                    name: "default",
+                    template: "{controller=Home}/{action=Index}/{id?}");
+            });
         }
     }
 }
