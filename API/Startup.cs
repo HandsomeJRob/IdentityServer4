@@ -20,13 +20,13 @@ namespace API
                 .AddJsonFormatters();
 
             services.AddAuthentication("Bearer")
-                .AddIdentityServerAuthentication(options =>
-                {
-                    options.Authority = "http://localhost:5000";
-                    options.RequireHttpsMetadata = false;
+               .AddJwtBearer("Bearer", options =>
+               {
+                   options.Authority = "http://localhost:5000";
+                   options.RequireHttpsMetadata = false;
 
-                    options.ApiName = "api1";
-                });
+                   options.Audience = "api1";
+               });
 
             services.AddCors(options =>
             {

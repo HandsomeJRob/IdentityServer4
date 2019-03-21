@@ -14,15 +14,13 @@ namespace ConsoleClientApp
 
 
             Console.ReadLine();
-            Environment.Exit(1);
         }
-
-
 
         public static async Task DoStuff()
         {
             // discover endpoints from metadata
-            var disco = await DiscoveryClient.GetAsync("http://localhost:5000");
+            var client = new HttpClient();
+            var disco = await client.GetDiscoveryDocumentAsync("http://localhost:5000");
             if (disco.IsError)
             {
                 Console.WriteLine(disco.Error);
@@ -31,8 +29,14 @@ namespace ConsoleClientApp
 
 
             // request token
-            var tokenClient = new TokenClient(disco.TokenEndpoint, "client", "secret");
-            var tokenResponse = await tokenClient.RequestClientCredentialsAsync("api1");
+            var tokenResponse = await client.RequestClientCredentialsTokenAsync(new ClientCredentialsTokenRequest
+            {
+                Address = disco.TokenEndpoint,
+
+                ClientId = "client",
+                ClientSecret = "secret",
+                Scope = "api1"
+            });
 
             if (tokenResponse.IsError)
             {
@@ -44,7 +48,7 @@ namespace ConsoleClientApp
 
 
             // call api
-            var client = new HttpClient();
+            client = new HttpClient();
             client.SetBearerToken(tokenResponse.AccessToken);
 
             var response = await client.GetAsync("http://localhost:5001/identity");
@@ -57,7 +61,6 @@ namespace ConsoleClientApp
                 var content = await response.Content.ReadAsStringAsync();
                 Console.WriteLine(JArray.Parse(content));
             }
-
         }
     }
 }
