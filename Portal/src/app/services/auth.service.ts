@@ -12,6 +12,8 @@ export class AuthService implements OnInit {
   public constructor() { }
 
   public ngOnInit(): void {
+    console.log('JR getting user');
+
     this.manager.getUser().then(user => {
       this.user = user;
     });
@@ -45,6 +47,10 @@ export class AuthService implements OnInit {
 
   startAuthentication(): Promise<void> {
     return this.manager.signinRedirect();
+  }
+
+  logoff(): Promise<void> {
+    return this.manager.signoutRedirect();
   }
 
   completeAuthentication(): Promise<void> {

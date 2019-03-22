@@ -26,27 +26,21 @@ export class NavbarComponent implements OnInit {
 
   }
 
-  public logOut() {
-
+  public logout() {
+    this.authService.logoff().then((result) => {
+      console.log('JR logoff result', result);
+    });
   }
 
   public checkUserStatus() {
     this.isLoggedIn = this.authService.isLoggedIn();
-    const claims = this.authService.getClaims();
 
-    console.log('JR claims', claims);
+    console.log('JR is logged in', this.isLoggedIn);
 
-    
-    
-
-
-    // if (this.authService.isLoggedIn()) {
-    //   this.isLoggedIn = true;
-    //   this.username = this.authService.getClaims().sub;
-
-    //   console.log('JR is logged in: ', this.isLoggedIn);
-    //   console.log('JR username: ', this.username);
-    // }
+    if (this.isLoggedIn) {
+      const claims = this.authService.getClaims();
+      console.log('JR claims', claims);
+    }
   }
 
 }
