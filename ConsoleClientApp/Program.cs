@@ -10,19 +10,18 @@ namespace ConsoleClientApp
     {
         static void Main(string[] args)
         {
-            DoStuff().Wait();
+            //LoginWithClientSecret().Wait();
 
+            LoginWithResourceOwnerFlow().Wait();
 
             Console.ReadLine();
-            Environment.Exit(1);
         }
 
-
-
-        public static async Task DoStuff()
+        public static async Task LoginWithClientSecret()
         {
             // discover endpoints from metadata
-            var disco = await DiscoveryClient.GetAsync("http://localhost:5000");
+            var client = new HttpClient();
+            var disco = await client.GetDiscoveryDocumentAsync("http://localhost:5000");
             if (disco.IsError)
             {
                 Console.WriteLine(disco.Error);
@@ -31,8 +30,14 @@ namespace ConsoleClientApp
 
 
             // request token
-            var tokenClient = new TokenClient(disco.TokenEndpoint, "client", "secret");
-            var tokenResponse = await tokenClient.RequestClientCredentialsAsync("api1");
+            var tokenResponse = await client.RequestClientCredentialsTokenAsync(new ClientCredentialsTokenRequest
+            {
+                Address = disco.TokenEndpoint,
+
+                ClientId = "client",
+                ClientSecret = "secret",
+                Scope = "api1"
+            });
 
             if (tokenResponse.IsError)
             {
@@ -44,7 +49,7 @@ namespace ConsoleClientApp
 
 
             // call api
-            var client = new HttpClient();
+            client = new HttpClient();
             client.SetBearerToken(tokenResponse.AccessToken);
 
             var response = await client.GetAsync("http://localhost:5001/identity");
@@ -57,7 +62,39 @@ namespace ConsoleClientApp
                 var content = await response.Content.ReadAsStringAsync();
                 Console.WriteLine(JArray.Parse(content));
             }
+        }
 
+        public static async Task LoginWithResourceOwnerFlow()
+        {
+            // discover endpoints from metadata
+            var client = new HttpClient();
+            var disco = await client.GetDiscoveryDocumentAsync("http://localhost:5000");
+            if (disco.IsError)
+            {
+                Console.WriteLine(disco.Error);
+                return;
+            }
+
+
+            // request token
+            var tokenResponse = await client.RequestPasswordTokenAsync(new PasswordTokenRequest
+            {
+                Address = disco.TokenEndpoint,
+                ClientId = "ro.client",
+                ClientSecret = "secret",
+
+                UserName = "alice",
+                Password = "password",
+                Scope = "api1"
+            });
+
+            if (tokenResponse.IsError)
+            {
+                Console.WriteLine(tokenResponse.Error);
+                return;
+            }
+
+            Console.WriteLine(tokenResponse.Json);
         }
     }
 }
