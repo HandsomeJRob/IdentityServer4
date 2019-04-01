@@ -19,14 +19,22 @@ namespace API
                 .AddAuthorization()
                 .AddJsonFormatters();
 
-            services.AddAuthentication("Bearer")
-               .AddJwtBearer("Bearer", options =>
-               {
-                   options.Authority = "http://localhost:5000";
-                   options.RequireHttpsMetadata = false;
+            services
+                //.AddAuthorization(options =>
+                //{
+                //    options.AddPolicy("JRAdmin", policy =>
+                //    {
+                //        policy.RequireClaim("role", "admin");
+                //    });
+                //})
+                .AddAuthentication("Bearer")
+                .AddJwtBearer("Bearer", options =>
+                {
+                    options.Authority = "http://localhost:5000";
+                    options.RequireHttpsMetadata = false;
 
-                   options.Audience = "api1";
-               });
+                    options.Audience = "api1";
+                });
 
             services.AddCors(options =>
             {

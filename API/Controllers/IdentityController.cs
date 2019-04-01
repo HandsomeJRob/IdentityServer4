@@ -17,5 +17,12 @@ namespace API.Controllers
         {
             return new JsonResult(from c in User.Claims select new { c.Type, c.Value });
         }
+
+        [HttpGet("admins")]
+        [Authorize(Roles = "admin")]
+        public IActionResult GetAdmin()
+        {
+            return new JsonResult(from c in User.Claims select new { c.Type, c.Value });
+        }
     }
 }

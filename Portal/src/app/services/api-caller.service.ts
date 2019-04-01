@@ -20,4 +20,17 @@ export class ApiCallerService {
       return EMPTY;
     }
   }
+
+  public callAdminApi(): Observable<any> {
+    if (this.authService.isLoggedIn()) {
+      const headers = new HttpHeaders({ Authorization: this.authService.getAuthorizationHeaderValue() });
+
+      return this.http.get('http://localhost:5001/identity/admins', { headers });
+    } else {
+      console.log('not logged in');
+      return EMPTY;
+    }
+  }
+
+
 }

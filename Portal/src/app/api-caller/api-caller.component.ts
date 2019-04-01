@@ -15,6 +15,8 @@ export class ApiCallerComponent implements OnInit {
   ngOnInit() {}
 
   public callApi() {
+    this.apiResults = 'sending request';
+
     this.apiClient.callApi().subscribe(result => {
       console.log(result);
 
@@ -22,7 +24,17 @@ export class ApiCallerComponent implements OnInit {
         this.apiResults = result;
       }
     });
+  }
 
-    this.apiResults = 'hey stuff happened';
+  public callAdminApi() {
+    this.apiResults = 'sending request';
+
+    this.apiClient.callAdminApi().subscribe(result => {
+      console.log(result);
+
+      if (result) {
+        this.apiResults = result;
+      }
+    });
   }
 }

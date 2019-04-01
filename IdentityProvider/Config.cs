@@ -5,6 +5,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Security.Claims;
+
+using IdentityModel;
+using IdentityServer4.Extensions;
+using IdentityServer4.Models;
+using IdentityServer4.Services;
 
 namespace IdentityProvider
 {
@@ -12,9 +18,30 @@ namespace IdentityProvider
     {
         public static IEnumerable<ApiResource> GetApiResources()
         {
+            //return new List<ApiResource>
+            //{
+            //    new ApiResource("api1", "My API")
+            //};
+
+            //return new List<ApiResource>
+            //{
+            //    new ApiResource
+            //    {
+            //        Name = "api1",
+            //        Description = "My API",
+            //        Scopes =  new Scope[]
+            //        {
+
+            //        }
+            //    }
+            //};
+
             return new List<ApiResource>
             {
                 new ApiResource("api1", "My API")
+                {
+                    UserClaims = new List<string> { "role" }
+                }
             };
         }
 
@@ -87,7 +114,8 @@ namespace IdentityProvider
                         IdentityServerConstants.StandardScopes.OpenId,
                         IdentityServerConstants.StandardScopes.Profile,
                         "api1"
-                    }
+                    },
+                    
                 }
 
             };
@@ -101,7 +129,12 @@ namespace IdentityProvider
                 new IdentityResources.Email(),
                 new IdentityResources.Profile(),
                 new IdentityResources.Phone(),
-                new IdentityResources.Address()
+                new IdentityResources.Address(),
+                new IdentityResource
+                 {
+                    Name = "role",
+                    UserClaims = new List<string> { "role" }
+                 }
             };
         }
 
@@ -120,6 +153,16 @@ namespace IdentityProvider
                     SubjectId = "2",
                     Username = "bob",
                     Password = "password"
+                },
+                new TestUser
+                {
+                    SubjectId = "3",
+                    Username = "admin",
+                    Password = "password",
+                    Claims = new List<Claim>
+                    {
+                        new Claim(JwtClaimTypes.Role, "admin")
+                    }
                 }
             };
         }
